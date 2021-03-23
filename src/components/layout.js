@@ -5,12 +5,24 @@
  * See: https://www.gatsbyjs.com/docs/use-static-query/
  */
 
-import * as React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import Img from 'gatsby-image';
+import { useStaticQuery, graphql } from 'gatsby';
+import styled from 'styled-components';
+import { Spring } from 'react-spring';
 
-import Header from "./header"
-import "./layout.css"
+import Header from './header';
+import Archive from './archive';
+import './layout.css';
+
+const MainStyle = styled.main`
+  max-width: 90%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 40px;
+`;
 
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`
@@ -18,22 +30,38 @@ const Layout = ({ children }) => {
       site {
         siteMetadata {
           title
+          description
+        }
+      }
+      file(relativePath: { regex: "/bg/" }) {
+        childImageSharp {
+          fluid(maxWidth: 1000) {
+            ...GatsbyImageSharpFluid
+          }
         }
       }
     }
-  `)
+  `);
 
   return (
     <>
       <Header siteTitle={data.site.siteMetadata?.title || `Title`} />
-      <div
-        style={{
-          margin: `0 auto`,
-          maxWidth: 960,
-          padding: `0 1.0875rem 1.45rem`,
-        }}
+      {/* <Spring
+        from={{ height: location.pathname === '/' ? 100 : 200 }}
+        to={{ height: 200 }}
       >
-        <main>{children}</main>
+        {(styles) => (
+          <div style={{ overflow: 'hidden', ...styles }}>
+            <Img fluid={data.file.childImageSharp.fluid} />
+          </div>
+        )}
+      </Spring> */}
+
+      <div>
+        <MainStyle>
+          <div>{children}</div>
+          <Archive />
+        </MainStyle>
         <footer
           style={{
             marginTop: `2rem`,
@@ -45,11 +73,11 @@ const Layout = ({ children }) => {
         </footer>
       </div>
     </>
-  )
-}
+  );
+};
 
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
-}
+};
 
-export default Layout
+export default Layout;
